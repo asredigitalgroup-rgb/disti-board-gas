@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DISTI TRADE BOARD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{ --brand:#00c0f3; --ink:#555; --bg:#f1f1f1; }
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{ font-family:'Titillium Web',sans-serif; background:var(--bg); color:var(--ink); overflow-x:hidden; }
+    .persian{ font-family:'Vazirmatn',sans-serif; }
+
+    header{ background:#fff; padding:16px 24px; border-bottom:1px solid #e0e0e0;
+            display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .logo{ display:flex; align-items:center; gap:12px; font-weight:700; }
+    .logo-b{ width:40px; height:40px; background:var(--brand); border-radius:8px; display:grid; place-items:center; color:#fff; }
+    .brand{ font-size:22px; font-weight:700; }
+    .user{ color:#777; font-weight:600; font-size:14px; }
+
+    main{ display:flex; height:calc(100vh - 73px); }
+    nav{ width:300px; background:linear-gradient(145deg,#fff 0%,#f8fbff 50%,#f0f8ff 100%);
+         border-right:1px solid #e0e8f0; overflow:auto; padding:16px 0; }
+    .cat{ padding:14px 20px; cursor:pointer; display:flex; align-items:center; gap:10px;
+          border-left:4px solid transparent; margin:3px 12px; border-radius:12px; font-weight:600; transition:.2s; }
+    .cat:hover{ background:rgba(0,192,243,.08); transform:translateX(4px); }
+    .cat.active{ background:linear-gradient(135deg,var(--brand),#09c); color:#fff; border-left-color:#fff; }
+
+    section.content{ flex:1; display:flex; flex-direction:column; background:#fff; margin:20px;
+                     border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.08); overflow:hidden; }
+
+    .toolbar{ padding:18px 20px; border-bottom:1px solid #e0e8f0; background:linear-gradient(135deg,#fafbff 0%,#f8fbff 100%); }
+    .search{ width:100%; padding:10px 12px; border:1px solid #e0e0e0; border-radius:8px; font-size:14px; margin-bottom:12px; }
+    .search:focus{ outline:none; border-color:var(--brand); box-shadow:0 0 0 3px rgba(0,192,243,.12); }
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{ padding:8px 12px; border:1px solid #e0e0e0; border-radius:6px; background:#fff; cursor:pointer; font-size:13px; transition:.2s; }
+    .chip.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
+
+    .table-wrap{ flex:1; overflow:auto; }
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    th{ position:sticky; top:0; background:linear-gradient(135deg,#f8fbff 0%,#f0f8ff 100%); padding:10px 8px;
+        border-bottom:2px solid var(--brand); cursor:pointer; }
+    td{ padding:10px 8px; border-bottom:1px solid #f0f0f0; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    tr:nth-child(even){ background:rgba(0,192,243,.03); }
+    tr:hover{ background:rgba(0,192,243,.06); }
+
+    .fav{ cursor:pointer; font-size:18px; }
+    .qty.in{ background:rgba(34,197,94,.1); color:#22c55e; padding:4px 8px; border-radius:999px; }
+    .qty.low{ background:rgba(251,191,36,.1); color:#fbbf24; padding:4px 8px; border-radius:999px; }
+    .qty.out{ background:rgba(239,68,68,.1); color:#ef4444; padding:4px 8px; border-radius:999px; }
+    .editable{ background:transparent; border:none; width:100%; padding:4px; }
+    .editable:focus{ outline:2px solid var(--brand); border-radius:4px; background:#fff; }
+    .muted{ color:#999; }
+
+    @media (max-width: 900px){ nav{display:none} main{height:auto} section.content{margin:8px} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><div class="logo-b">D</div><div class="brand">DISTI.DIGITAL</div></div>
+    <div id="userBox" class="user">Loading user…</div>
+  </header>
+
+  <main>
+    <nav id="cats"></nav>
+
+    <section class="content">
+      <div class="toolbar">
+        <input id="q" class="search" placeholder="Search by model, series, brand, SKU…"/>
+        <div class="chips">
+          <div class="chip" data-filter="favorite">⭐ Favorites</div>
+          <div class="chip active" data-filter="all">All Products</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th data-k="favorite">⭐</th>
+              <th data-k="sku">SKU</th>
+              <th data-k="brand">BRAND</th>
+              <th data-k="series">SERIES</th>
+              <th data-k="model">MODEL</th>
+              <th data-k="salesPrice">SALES PRICE</th>
+              <th data-k="qty">QTY</th>
+              <th data-k="market">MARKET</th>
+              <th data-k="retail">RETAIL</th>
+              <th data-k="guarantee">GUARANTEE</th>
+              <th data-k="grntDu">GRNT DU</th>
+              <th data-k="note">NOTE</th>
+            </tr>
+          </thead>
+          <tbody id="body"><tr><td colspan="12" class="muted" style="padding:40px">Loading products…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ===== App State =====
+    const S = { user:null, role:'viewer', tab:null, data:[], sort:{field:'series',direction:'asc'}, q:'', onlyFav:false };
+    function fmt(n){ if(n===null||n===undefined||n==='') return ''; const x=parseFloat(n); return isNaN(x)?'': x.toLocaleString(); }
+    function canEdit(){ return ['editor','admin'].includes(S.role); }
+    function setUserBox(){
+      const el = document.getElementById('userBox');
+      if(!S.user){ el.textContent='Not signed in'; return; }
+      const name = S.user.displayName || S.user.email || 'User';
+      el.textContent = `${name} – ${S.role.toUpperCase()}`;
+    }
+
+    // ===== Bootstrap =====
+    document.addEventListener('DOMContentLoaded', () => {
+      google.script.run.withSuccessHandler(r => {
+        if (r && r.ok) { S.user = r.data; S.role = r.data.role || 'viewer'; }
+        setUserBox();
+        loadCats();
+      }).whoAmI();
+    });
+
+    function loadCats(){
+      google.script.run.withSuccessHandler(r => {
+        const host = document.getElementById('cats'); host.innerHTML = '';
+        const arr = r && r.ok ? r.data : [];
+        arr.forEach((c, i) => {
+          const d = document.createElement('div');
+          d.className = 'cat' + (i===0 ? ' active':'');
+          d.textContent = c.title || c.tab;
+          d.dataset.tab = c.tab;
+          d.onclick = () => selectTab(c.tab, d);
+          host.appendChild(d);
+          if (i===0) S.tab = c.tab;
+        });
+        if (arr.length) refresh();
+      }).getCategories();
+    }
+
+    function selectTab(tab, node){
+      S.tab = tab;
+      document.querySelectorAll('.cat').forEach(x=>x.classList.remove('active'));
+      if (node) node.classList.add('active');
+      // Reset filters
+      document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+      document.querySelector('.chip[data-filter="all"]').classList.add('active');
+      S.onlyFav = false; S.q = ''; document.getElementById('q').value = '';
+      refresh();
+    }
+
+    // ===== Filters / Sorting =====
+    document.addEventListener('input', e => {
+      if (e.target && e.target.id === 'q') { S.q = (e.target.value || '').trim().toLowerCase(); render(); }
+    });
+    document.addEventListener('click', e => {
+      const chip = e.target.closest('.chip');
+      if (chip) {
+        document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+        chip.classList.add('active');
+        S.onlyFav = chip.dataset.filter === 'favorite';
+        render();
+      }
+    });
+    document.addEventListener('click', e => {
+      const th = e.target.closest('th[data-k]');
+      if (!th) return;
+      const f = th.dataset.k;
+      if (S.sort.field === f) S.sort.direction = (S.sort.direction === 'asc' ? 'desc' : 'asc');
+      else { S.sort.field = f; S.sort.direction = 'asc'; }
+      render();
+    });
+
+    // ===== Data Loading =====
+    function refresh(){
+      const body = document.getElementById('body');
+      body.innerHTML = '<tr><td colspan="12" class="muted" style="padding:40px">Loading products…</td></tr>';
+      const opts = { search:'', onlyFavorites:false, sort:S.sort };
+      google.script.run.withSuccessHandler(r => {
+        if (!r || !r.ok) { body.innerHTML = `<tr><td colspan="12" style="padding:40px;color:#c00">${r && r.error ? r.error : 'Load error'}</td></tr>`; return; }
+        S.data = r.data.products || [];
+        render();
+      }).listProducts(S.tab, opts);
+    }
+
+    function render(){
+      const body = document.getElementById('body');
+      let rows = (S.data || []).filter(p => {
+        if (S.onlyFav && !p.favorite) return false;
+        if (S.q) {
+          const q = S.q;
+          const hay = [p.sku, p.brand, p.series, p.model].map(x => (x || '').toLowerCase()).join(' ');
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      // client sorting
+      const f = S.sort.field, dir = S.sort.direction;
+      rows.sort((a,b) => {
+        const va=a[f], vb=b[f];
+        if (va==null && vb==null) return 0;
+        if (va==null) return 1;
+        if (vb==null) return -1;
+        if (typeof va === 'number' && typeof vb === 'number') return dir==='asc' ? va-vb : vb-va;
+        return dir==='asc' ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+      });
+
+      if (!rows.length) { body.innerHTML = '<tr><td colspan="12" class="muted" style="padding:40px">No products.</td></tr>'; return; }
+
+      body.innerHTML = rows.map(p => {
+        const qtyClass = p.qtyLevel === 'in' ? 'qty in' : (p.qtyLevel === 'low' ? 'qty low' : 'qty out');
+        const editAttr = canEdit() ? '' : 'disabled';
+        return `
+          <tr data-sku="${p.sku}">
+            <td><span class="fav" title="Toggle Favorite" onclick="toggleFav('${p.sku}', ${!p.favorite})">${p.favorite ? '★' : '☆'}</span></td>
+            <td>${p.sku || ''}</td>
+            <td>${p.brand || ''}</td>
+            <td>${p.series || ''}</td>
+            <td>${p.model || ''}</td>
+            <td><input class="editable" type="text" value="${fmt(p.salesPrice)}" onblur="saveField('${p.sku}','salesPrice',this.value)" ${editAttr}></td>
+            <td><span class="${qtyClass}" title="${p.qty ?? ''}">${p.qty ?? ''}</span></td>
+            <td><input class="editable" type="text" value="${fmt(p.market)}" onblur="saveField('${p.sku}','market',this.value)" ${editAttr}></td>
+            <td><input class="editable" type="text" value="${fmt(p.retail)}" onblur="saveField('${p.sku}','retail',this.value)" ${editAttr}></td>
+            <td>${p.guarantee || ''}</td>
+            <td>${p.grntDu || ''}</td>
+            <td><input class="editable persian" type="text" value="${(p.note || '').replaceAll('"','&quot;')}" onblur="saveField('${p.sku}','note',this.value)" ${editAttr}></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ===== Actions =====
+    function saveField(sku, field, val){
+      if (!canEdit()) return;
+      const payload = { tab: S.tab, sku }; payload[field] = val;
+      google.script.run.withSuccessHandler(r => {
+        // Optional: toast/feedback; we silently accept for speed.
+        if (!r || !r.ok) alert(r && r.error ? r.error : 'Update failed');
+      }).updateProduct(payload);
+    }
+
+    function toggleFav(sku, next){
+      google.script.run.withSuccessHandler(r => {
+        if (r && r.ok) {
+          const it = (S.data || []).find(x => x.sku === sku);
+          if (it) { it.favorite = r.data.favorite; render(); }
+        }
+      }).setFavorite(sku, next);
+    }
+  </script>
+</body>
+</html>
