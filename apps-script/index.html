@@ -116,6 +116,10 @@
         if (r && r.ok) { S.user = r.data; S.role = r.data.role || 'viewer'; }
         setUserBox();
         loadCats();
+      }).withFailureHandler(err => {
+        console.error(err);
+        document.getElementById('userBox').textContent = 'Error loading user';
+        alert(err && err.message ? err.message : err);
       }).whoAmI();
     });
 
@@ -133,6 +137,10 @@
           if (i===0) S.tab = c.tab;
         });
         if (arr.length) refresh();
+      }).withFailureHandler(err => {
+        console.error(err);
+        document.getElementById('cats').innerHTML = '<div class="cat">Load error</div>';
+        alert(err && err.message ? err.message : err);
       }).getCategories();
     }
 
@@ -178,6 +186,10 @@
         if (!r || !r.ok) { body.innerHTML = `<tr><td colspan="12" style="padding:40px;color:#c00">${r && r.error ? r.error : 'Load error'}</td></tr>`; return; }
         S.data = r.data.products || [];
         render();
+      }).withFailureHandler(err => {
+        console.error(err);
+        body.innerHTML = `<tr><td colspan="12" style="padding:40px;color:#c00">${err && err.message ? err.message : 'Load error'}</td></tr>`;
+        alert(err && err.message ? err.message : err);
       }).listProducts(S.tab, opts);
     }
 
@@ -235,6 +247,9 @@
       google.script.run.withSuccessHandler(r => {
         // Optional: toast/feedback; we silently accept for speed.
         if (!r || !r.ok) alert(r && r.error ? r.error : 'Update failed');
+      }).withFailureHandler(err => {
+        console.error(err);
+        alert(err && err.message ? err.message : err);
       }).updateProduct(payload);
     }
 
@@ -244,6 +259,9 @@
           const it = (S.data || []).find(x => x.sku === sku);
           if (it) { it.favorite = r.data.favorite; render(); }
         }
+      }).withFailureHandler(err => {
+        console.error(err);
+        alert(err && err.message ? err.message : err);
       }).setFavorite(sku, next);
     }
   </script>
